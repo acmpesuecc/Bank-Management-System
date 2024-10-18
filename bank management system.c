@@ -497,80 +497,99 @@ void menu(void){
 
     system("cls");
     switch (choice) {
-        case 1: new_acc(); 
+        case 1:
+            new_acc(); 
         break;
-        case 2: edit(); 
+        case 2:
+            edit(); 
         break;
-        case 3: transact(); 
+        case 3:
+            transact(); 
         break;
-        case 4: see(); 
+        case 4:
+            see(); 
         break;
-        case 5: erase(); 
+        case 5:
+            erase(); 
         break;
-        case 6: view_list(); 
+        case 6:
+            view_list(); 
         break;
-        case 7: transfer(); 
+        case 7:
+            transfer(); 
         break;
-        case 8: exit(0); 
+        case 8:
+            exit(0); 
         break;
     }   
 }
-void transfer(){
+void transfer() {
+    int src_acc_no, dest_acc_no, test_src = 0, test_dest = 0;
+    float transfer_amt;
     FILE *old, *newrec;
-    int senderAccNo, receiverAccNo, testSender = 0, testReceiver = 0;
-    float transferAmount;
 
     old = fopen("record.dat", "r");
     newrec = fopen("new.dat", "w");
 
-    printf("Enter the sender's account number: ");
-    scanf("%d", &senderAccNo);
-    printf("Enter the receiver's account number: ");
-    scanf("%d", &receiverAccNo);
-    printf("Enter the amount to transfer: $");
-    scanf("%f", &transferAmount);
+    printf("Enter the account number to transfer from: ");
+    scanf("%d", &src_acc_no);
 
-    while(fscanf(old, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",
-                  &add.acc_no, add.name, &add.dob.month, &add.dob.day,
-                  &add.dob.year, &add.age, add.address, add.citizenship,
-                  &add.phone, add.acc_type, &add.amt,
-                  &add.deposit.month, &add.deposit.day, &add.deposit.year) != EOF) {
-        
-        if(add.acc_no == senderAccNo){
-            testSender = 1;
-            if(add.amt >= transferAmount){
-                add.amt -= transferAmount;
-            } 
-            else{
-                printf("Insufficient funds in sender's account!\n");
+    printf("Enter the account number to transfer to: ");
+    scanf("%d", &dest_acc_no);
+
+    printf("Enter the amount to transfer: $");
+    scanf("%f", &transfer_amt);
+
+    while(fscanf(old, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d",
+           &add.acc_no, add.name, &add.dob.month, &add.dob.day, &add.dob.year, &add.age, 
+           add.address, add.citizenship, &add.phone, add.acc_type, &add.amt, 
+           &add.deposit.month, &add.deposit.day, &add.deposit.year) != EOF) {
+
+        if(add.acc_no == src_acc_no){
+            test_src = 1;
+            if(add.amt < transfer_amt){
+                printf("\nInsufficient funds in the source account!\n");
                 fclose(old);
                 fclose(newrec);
+                remove("new.dat");
+                menu();
                 return;
+            } else {
+                add.amt -= transfer_amt;
             }
-        }
-        if(add.acc_no == receiverAccNo){
-            testReceiver = 1;
-            add.amt += transferAmount;
+        } 
+
+        if(add.acc_no == dest_acc_no){
+            test_dest = 1;
+            add.amt += transfer_amt;
         }
 
-        fprintf(newrec, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",
-                add.acc_no, add.name, add.dob.month, add.dob.day,
-                add.dob.year, add.age, add.address, add.citizenship,
-                add.phone, add.acc_type, add.amt,
-                add.deposit.month, add.deposit.day, add.deposit.year);
+        fprintf(newrec, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n", 
+                add.acc_no, add.name, add.dob.month, add.dob.day, add.dob.year, 
+                add.age, add.address, add.citizenship, add.phone, add.acc_type, 
+                add.amt, add.deposit.month, add.deposit.day, add.deposit.year);
     }
 
     fclose(old);
     fclose(newrec);
-
     remove("record.dat");
     rename("new.dat", "record.dat");
 
-    if(testSender && testReceiver){
-        printf("Transfer successful! $%.2f has been transferred from account %d to account %d.\n", transferAmount, senderAccNo, receiverAccNo);
-    } 
+    if(test_src == 0 || test_dest == 0){
+        printf("\nInvalid account number(s)!\n");
+    }
     else{
-        printf("One or both accounts do not exist.\n");
+        printf("\nTransfer completed successfully!\n");
+    }
+
+    printf("\nEnter 1 to go to the main menu and 0 to exit: ");
+    scanf("%d", &main_exit);
+    system("cls");
+    if(main_exit == 1){
+        menu();
+    }
+    else{
+        exit(0);
     }
 }
 
