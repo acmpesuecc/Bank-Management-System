@@ -4,12 +4,12 @@
 int i,j;
 int main_exit;
 void menu();
+void transfer();
 struct date{
     int month,day,year;
 
     };
 struct {
-
     char name[60];
     int acc_no,age;
     char address[60];
@@ -486,38 +486,86 @@ void see(void)
 
 }
 
-void menu(void)
-{   int choice;
+void menu(void){
+    int choice;
     system("cls");
     system("color 9");
     printf("\n\n\t\t\tCUSTOMER ACCOUNT BANKING MANAGEMENT SYSTEM");
     printf("\n\n\n\t\t\t\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WELCOME TO THE MAIN MENU \xB2\xB2\xB2\xB2\xB2\xB2\xB2");
-    printf("\n\n\t\t1.Create new account\n\t\t2.Update information of existing account\n\t\t3.For transactions\n\t\t4.Check the details of existing account\n\t\t5.Removing existing account\n\t\t6.View customer's list\n\t\t7.Exit\n\n\n\n\n\t\t Enter your choice:");
-    scanf("%d",&choice);
+    printf("\n\n\t\t1.Create new account\n\t\t2.Update information of existing account\n\t\t3.For transactions\n\t\t4.Check the details of existing account\n\t\t5.Removing existing account\n\t\t6.View customer's list\n\t\t7.Transfer funds\n\t\t8.Exit\n\n\n\n\n\t\t Enter your choice:");
+    scanf("%d", &choice);
 
     system("cls");
-    switch(choice)
-    {
-        case 1:new_acc();
-        break;
-        case 2:edit();
-        break;
-        case 3:transact();
-        break;
-        case 4:see();
-        break;
-        case 5:erase();
-        break;
-        case 6:view_list();
-        break;
-        case 7:exit(0);
-        break;
+    switch (choice) {
+        case 1: new_acc(); break;
+        case 2: edit(); break;
+        case 3: transact(); break;
+        case 4: see(); break;
+        case 5: erase(); break;
+        case 6: view_list(); break;
+        case 7: transfer(); break;
+        case 8: exit(0); break;
+    }   
+}
+void transfer(){
+    FILE *old, *newrec;
+    int senderAccNo, receiverAccNo, testSender = 0, testReceiver = 0;
+    float transferAmount;
 
+    old = fopen("record.dat", "r");
+    newrec = fopen("new.dat", "w");
+
+    printf("Enter the sender's account number: ");
+    scanf("%d", &senderAccNo);
+    printf("Enter the receiver's account number: ");
+    scanf("%d", &receiverAccNo);
+    printf("Enter the amount to transfer: $");
+    scanf("%f", &transferAmount);
+
+    while(fscanf(old, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",
+                  &add.acc_no, add.name, &add.dob.month, &add.dob.day,
+                  &add.dob.year, &add.age, add.address, add.citizenship,
+                  &add.phone, add.acc_type, &add.amt,
+                  &add.deposit.month, &add.deposit.day, &add.deposit.year) != EOF) {
+        
+        if(add.acc_no == senderAccNo){
+            testSender = 1;
+            if(add.amt >= transferAmount){
+                add.amt -= transferAmount;
+            } 
+            else{
+                printf("Insufficient funds in sender's account!\n");
+                fclose(old);
+                fclose(newrec);
+                return;
+            }
+        }
+        if(add.acc_no == receiverAccNo){
+            testReceiver = 1;
+            add.amt += transferAmount;
+        }
+
+        fprintf(newrec, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",
+                add.acc_no, add.name, add.dob.month, add.dob.day,
+                add.dob.year, add.age, add.address, add.citizenship,
+                add.phone, add.acc_type, add.amt,
+                add.deposit.month, add.deposit.day, add.deposit.year);
     }
 
+    fclose(old);
+    fclose(newrec);
 
+    remove("record.dat");
+    rename("new.dat", "record.dat");
 
+    if(testSender && testReceiver){
+        printf("Transfer successful! $%.2f has been transferred from account %d to account %d.\n", transferAmount, senderAccNo, receiverAccNo);
+    } 
+    else{
+        printf("One or both accounts do not exist.\n");
+    }
 }
+
 int main()
 {
     char pass[10],password[10]="codewithc";
