@@ -543,25 +543,24 @@ void transfer() {
     while(fscanf(old, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d",
            &add.acc_no, add.name, &add.dob.month, &add.dob.day, &add.dob.year, &add.age, 
            add.address, add.citizenship, &add.phone, add.acc_type, &add.amt, 
-           &add.deposit.month, &add.deposit.day, &add.deposit.year) != EOF) {
+           &add.deposit.month, &add.deposit.day, &add.deposit.year) != EOF){
 
         if(add.acc_no == src_acc_no){
             test_src = 1;
             if(add.amt < transfer_amt){
                 printf("\nInsufficient funds in the source account!\n");
-                fclose(old);
-                fclose(newrec);
-                remove("new.dat");
-                menu();
-                return;
-            } else {
+                test_src = -1;
+            }
+            else{
                 add.amt -= transfer_amt;
             }
-        } 
+        }
 
         if(add.acc_no == dest_acc_no){
             test_dest = 1;
-            add.amt += transfer_amt;
+            if(test_src != -1){
+                add.amt += transfer_amt;
+            }
         }
 
         fprintf(newrec, "%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n", 
@@ -572,14 +571,19 @@ void transfer() {
 
     fclose(old);
     fclose(newrec);
-    remove("record.dat");
-    rename("new.dat", "record.dat");
 
-    if(test_src == 0 || test_dest == 0){
+    if(test_src == -1){
+        printf("\nTransfer Failed! Insufficient funds!\n");
+        remove("new.dat");
+    }
+    else if(test_src == 0 || test_dest == 0){
         printf("\nInvalid account number(s)!\n");
+        remove("new.dat");
     }
     else{
         printf("\nTransfer completed successfully!\n");
+        remove("record.dat");
+        rename("new.dat", "record.dat");
     }
 
     printf("\nEnter 1 to go to the main menu and 0 to exit: ");
