@@ -497,14 +497,22 @@ void menu(void){
 
     system("cls");
     switch (choice) {
-        case 1: new_acc(); break;
-        case 2: edit(); break;
-        case 3: transact(); break;
-        case 4: see(); break;
-        case 5: erase(); break;
-        case 6: view_list(); break;
-        case 7: transfer(); break;
-        case 8: exit(0); break;
+        case 1: new_acc(); 
+        break;
+        case 2: edit(); 
+        break;
+        case 3: transact(); 
+        break;
+        case 4: see(); 
+        break;
+        case 5: erase(); 
+        break;
+        case 6: view_list(); 
+        break;
+        case 7: transfer(); 
+        break;
+        case 8: exit(0); 
+        break;
     }   
 }
 void transfer(){
