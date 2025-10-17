@@ -1,7 +1,7 @@
 # Banking Management System
 
 This is a console-based Banking Management System written in C. The application allows users to perform banking operations such as creating a new account, viewing existing accounts, updating customer details, managing transactions, and deleting accounts.
-
+- Maintainer: [Sarah Kazi](https://github.com/Sarah-Kazi)
 ## Features
 
 - **Create New Account**: Users can create a new bank account by providing details like name, date of birth, address, citizenship number, phone number, account type, and initial deposit.
