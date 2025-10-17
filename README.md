@@ -20,3 +20,4 @@ This is a console-based Banking Management System written in C. The application 
 3. Run the executable
    ```bash
    bank_management.exe
+<img width="527" height="445" alt="image" src="https://github.com/user-attachments/assets/efce0a10-85fd-4a5f-81f5-3368d0bfcf17" />
