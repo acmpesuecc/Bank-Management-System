@@ -40,9 +40,8 @@ int lastNum = 0;
 void new_acc()
 
 {
-    int choice;
     FILE *ptr;
-
+    int choice;
     ptr=fopen("record.dat","a+");
     account_no:
     system("cls");
