@@ -497,43 +497,40 @@ void see(void)
 
 }
 
-void menu(void){
-    int choice;
-    system("cls");
-    system("color 9");
-    printf("\n\n\t\t\tCUSTOMER ACCOUNT BANKING MANAGEMENT SYSTEM");
-    printf("\n\n\n\t\t\t\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WELCOME TO THE MAIN MENU \xB2\xB2\xB2\xB2\xB2\xB2\xB2");
-    printf("\n\n\t\t1.Create new account\n\t\t2.Update information of existing account\n\t\t3.For transactions\n\t\t4.Check the details of existing account\n\t\t5.Removing existing account\n\t\t6.View customer's list\n\t\t7.Transfer funds\n\t\t8.Exit\n\n\n\n\n\t\t Enter your choice:");
-    scanf("%d", &choice);
+// Remove the entire edit() function
 
-    system("cls");
-    switch (choice) {
-        case 1:
-            new_acc(); 
-        break;
-        case 2:
-            edit(); 
-        break;
-        case 3:
-            transact(); 
-        break;
-        case 4:
-            see(); 
-        break;
-        case 5:
-            erase(); 
-        break;
-        case 6:
-            view_list(); 
-        break;
-        case 7:
-            transfer(); 
-        break;
-        case 8:
-            exit(0); 
-        break;
-    }   
+// In the menu() function, update the switch case to remove the edit option
+// Add this function before main()
+int is_admin() {
+    char pass[20], password[20] = "admin123"; // Default admin password
+    char user_type;
+    int i = 0;
+    
+    printf("\n\n\t\tAre you an Admin or User? (A/U): ");
+    scanf(" %c", &user_type);
+    
+    if (user_type == 'A' || user_type == 'a') {
+        printf("\n\t\tEnter admin password: ");
+        scanf("%s", pass);
+        
+        if (strcmp(pass, password) == 0) {
+            printf("\n\n\t\tAdmin access granted!\n");
+            for(i=0; i<=3; i++) {
+                fordelay(100000000);
+                printf(".");
+            }
+            system("cls");
+            return 1; // Return 1 for admin
+        } else {
+            printf("\n\n\t\tIncorrect password! Logging in as regular user...\n");
+            fordelay(1000000000);
+            system("cls");
+            return 0; // Return 0 for regular user
+        }
+    }
+    return 0; // Regular user by default
 }
+
 void transfer() {
     int test_src = 0, test_dest = 0;
     char src_acc_no[10];
@@ -605,94 +602,111 @@ void transfer() {
     if(main_exit == 1){
         menu();
     }
-    else{
-        exit(0);
-    }
 }
 
-int main()
-{
-     int choice;
+
+// Update the menu function
+void menu() {
+    int choice, is_admin_user = 0;
+    
+    // Check if user is admin
+    is_admin_user = is_admin();
+    
     system("cls");
     system("color 9");
     printf("\n\n\t\t\tCUSTOMER ACCOUNT BANKING MANAGEMENT SYSTEM");
     printf("\n\n\n\t\t\t\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WELCOME TO THE MAIN MENU \xB2\xB2\xB2\xB2\xB2\xB2\xB2");
-    printf("\n\n\t\t1.Create new account\n\t\t2.Update information of existing account\n\t\t3.For transactions\n\t\t4.Check the details of existing account\n\t\t5.Removing existing account\n\t\t6.View customer's list\n\t\t7.Transfer funds\n\t\t8.Exit\n\n\n\n\n\t\t Enter your choice:");
+    
+    if (is_admin_user) {
+        printf("\n\n\t\t1. Create new account");
+        printf("\n\t\t2. View all accounts");
+        printf("\n\t\t3. Edit account details");
+        printf("\n\t\t4. Delete account");
+        printf("\n\t\t5. Transaction");
+        printf("\n\t\t6. View transaction history");
+        printf("\n\t\t7. Change admin password");
+        printf("\n\t\t8. Exit");
+    } else {
+        printf("\n\n\t\t1. Create new account");
+        printf("\n\t\t2. View account details");
+        printf("\n\t\t3. Make a transaction");
+        printf("\n\t\t4. Transfer money");
+        printf("\n\t\t5. Exit");
+    }
+    
+    printf("\n\n\t\tEnter your choice: ");
     scanf("%d", &choice);
-
+    
     system("cls");
-    switch (choice) {
+    switch(choice) {
         case 1:
-            new_acc(); 
-        break;
+            new_acc();
+            break;
         case 2:
-            edit(); 
-        break;
-        case 3:
-            transact(); 
-        break;
-        case 4:
-            see(); 
-        break;
-        case 5:
-            erase(); 
-        break;
-        case 6:
-            view_list(); 
-        break;
-        case 7:
-            transfer(); 
-        break;
-        case 8:
-            exit(0); 
-        break;
-    }   
-    char pass[10],password[10]="codewithc";
-    int i=0;
-    printf("\n\n\t\tEnter the password to login:");
-    scanf("%s",pass);
-    /*do
-    {
-    //if (pass[i]!=13&&pass[i]!=8)
-        {
-            printf("*");
-            pass[i]=getch();
-            i++;
-        }
-    }while (pass[i]!=13);
-    pass[10]='\0';*/
-    if (strcmp(pass,password)==0)
-        {printf("\n\nPassword Match!\nLOADING");
-        for(i=0;i<=6;i++)
-        {
-            fordelay(100000000);
-            printf(".");
-        }
-                system("cls");
-            menu();
-        }
-    else
-        {   printf("\n\nWrong password!!\a\a\a");
-            login_try:
-            printf("\nEnter 1 to try again and 0 to exit:");
-            scanf("%d",&main_exit);
-            if (main_exit==1)
-                    {
-
-                        system("cls");
-                        main();
-                    }
-
-            else if (main_exit==0)
-                    {
-                    system("cls");
-                    exit(0);}
+            if (is_admin_user)
+                view_list();
             else
-                    {printf("\nInvalid!");
-                    fordelay(1000000000);
-                    system("cls");
-                    goto login_try;}
+                see();
+            break;
+        case 3:
+            if (is_admin_user)
+                edit();
+            else
+                transact();
+            break;
+        case 4:
+            if (is_admin_user)
+                erase();
+            else
+                transfer();
+            break;
+        case 5:
+            if (is_admin_user) {
+                // View transaction history function can be added here
+                printf("\n\t\tTransaction history feature coming soon!");
+                fordelay(1000000000);
+                menu();
+            } else {
+                exit(0);
+            }
+            break;
+        case 6:
+            if (is_admin_user) {
+                // Admin-specific function
+                printf("\n\t\tAdmin function 2");
+                fordelay(1000000000);
+                menu();
+            }
+            break;
+        case 7:
+            if (is_admin_user) {
+                // Change admin password function can be added here
+                printf("\n\t\tChange admin password feature coming soon!");
+                fordelay(1000000000);
+                menu();
+            }
+            break;
+        case 8:
+            if (is_admin_user) {
+                exit(0);
+            }
+            break;
+        default:
+            printf("\n\t\tInvalid choice! Please try again.");
+            fordelay(1000000000);
+            menu();
+    }
+}
 
-        }
-        return 0;
+// Update the main function
+int main() {
+    system("cls");
+    system("color 9");
+    printf("\n\n\t\t\tCUSTOMER ACCOUNT BANKING MANAGEMENT SYSTEM");
+    printf("\n\n\n\t\t\t\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WELCOME \xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+    
+    // Call the menu function which will handle admin/user login
+    menu();
+    
+    return 0;
 }
