@@ -1,8 +1,33 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<windows.h>
+#include<string.h>
 int i,j;
 int main_exit;
+
+int is_admin = 0;
+char logged_in_user[60] = "user";
+
+void login() {
+    char username[50], password[50];
+    system("cls");
+    printf("\n\t=== LOGIN ===\n\tUsername: ");
+    scanf("%s", username);
+    printf("\tPassword: ");
+    scanf("%s", password);
+    
+    if(strcmp(username,"admin")==0 && strcmp(password,"admin")==0) {
+        is_admin = 1;
+        strcpy(logged_in_user, "admin");
+        printf("\n\tAdmin access granted!\n");
+    } else {
+        is_admin = 0;
+        strcpy(logged_in_user, username);
+        printf("\n\tUser access granted!\n");
+    }
+    fordelay(1000000000);
+}
+
 void menu();
 void transfer();
 struct date{
@@ -41,6 +66,13 @@ void new_acc()
 {
     int choice;
     FILE *ptr;
+
+    if(!is_admin) {
+        printf("\n\tAccess Denied! Only admin can create accounts.\n");
+        fordelay(1000000000);
+        menu();
+        return;
+    }
 
     ptr=fopen("record.dat","a+");
     account_no:
@@ -102,6 +134,15 @@ void view_list()
     view=fopen("record.dat","r");
     int test=0;
     system("cls");
+
+    if(!is_admin) {
+        printf("\n\tAccess Denied! Only admin can view all accounts.\n");
+        fclose(view);
+        fordelay(1000000000);
+        menu();
+        return;
+    }
+
     printf("\nACC. NO.\tNAME\t\t\tADDRESS\t\t\tPHONE\n");
 
     while(fscanf(view,"%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d",&add.acc_no,add.name,&add.dob.month,&add.dob.day,&add.dob.year,&add.age,add.address,add.citizenship,&add.phone,add.acc_type,&add.amt,&add.deposit.month,&add.deposit.day,&add.deposit.year)!=EOF)
@@ -142,6 +183,17 @@ void edit(void)
     {
         if (add.acc_no==upd.acc_no)
         {   test=1;
+
+            if(!is_admin && strcmp(logged_in_user, add.name) != 0) {
+                printf("\n\tAccess Denied! You can only edit your own account.\n");
+                fclose(old);
+                fclose(newrec);
+                remove("new.dat");
+                fordelay(1000000000);
+                menu();
+                return;
+            }
+
             printf("\nWhich information do you want to change?\n1.Address\n2.Phone\n\nEnter your choice(1 for address and 2 for phone):");
             scanf("%d",&choice);
             system("cls");
@@ -212,6 +264,17 @@ void transact(void)
 
             if(add.acc_no==transaction.acc_no)
             {   test=1;
+
+                if(!is_admin && strcmp(logged_in_user, add.name) != 0) {
+                    printf("\n\tAccess Denied! You can only transact on your own account.\n");
+                    fclose(old);
+                    fclose(newrec);
+                    remove("new.dat");
+                    fordelay(1000000000);
+                    menu();
+                    return;
+                }
+
                 if(strcmpi(add.acc_type,"fixed1")==0||strcmpi(add.acc_type,"fixed2")==0||strcmpi(add.acc_type,"fixed3")==0)
                 {
                     printf("\a\a\a\n\nYOU CANNOT DEPOSIT OR WITHDRAW CASH IN FIXED ACCOUNTS!!!!!");
@@ -285,6 +348,14 @@ void erase(void)
 {
     FILE *old,*newrec;
     int test=0;
+
+    if(!is_admin) {
+        printf("\n\tAccess Denied! Only admin can delete accounts.\n");
+        fordelay(1000000000);
+        menu();
+        return;
+    }
+
     old=fopen("record.dat","r");
     newrec=fopen("new.dat","w");
     printf("Enter the account no. of the customer you want to delete:");
@@ -599,7 +670,9 @@ void transfer() {
 
 int main()
 {
-     int choice;
+    login();
+    
+    int choice;
     system("cls");
     system("color 9");
     printf("\n\n\t\t\tCUSTOMER ACCOUNT BANKING MANAGEMENT SYSTEM");
@@ -638,16 +711,6 @@ int main()
     int i=0;
     printf("\n\n\t\tEnter the password to login:");
     scanf("%s",pass);
-    /*do
-    {
-    //if (pass[i]!=13&&pass[i]!=8)
-        {
-            printf("*");
-            pass[i]=getch();
-            i++;
-        }
-    }while (pass[i]!=13);
-    pass[10]='\0';*/
     if (strcmp(pass,password)==0)
         {printf("\n\nPassword Match!\nLOADING");
         for(i=0;i<=6;i++)
