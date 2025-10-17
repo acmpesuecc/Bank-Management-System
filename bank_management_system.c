@@ -63,7 +63,7 @@ void gen_rec(int acc_id, char* type, float amount, float new_balance, int rec_ac
     fprintf(rec_ptr, "\namount: $%f", amount);
 
     if (rec_acc_id != 0) {
-        fprintf(rec_ptr, "\nSender Account: %d", acc_id);
+        fprintf(rec_ptr, "\nsender account: %d", acc_id);
         fprintf(rec_ptr, "\nreceiver account: %d", rec_acc_id);
     } else {
         fprintf(rec_ptr, "\naccount no.:   %d", acc_id);
