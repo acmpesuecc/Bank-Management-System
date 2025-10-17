@@ -112,7 +112,7 @@ void view_list()
     printf("Enter Admin password: ");
     char pass[100];
     scanf("%s",pass);
-    if(strcmp(pass,"admin123\n")){
+    if(strcmp(pass,"admin123")==0){
         FILE *view;
         view=fopen("record.dat","r");
         int test=0;
