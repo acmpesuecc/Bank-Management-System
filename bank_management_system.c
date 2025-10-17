@@ -108,37 +108,58 @@ void new_acc()
         }
 }
 void view_list()
-{
-    FILE *view;
-    view=fopen("record.dat","r");
-    int test=0;
-    system("cls");
-    printf("\nACC. NO.\tNAME\t\t\tADDRESS\t\t\tPHONE\n");
-
-    while(fscanf(view,"%s %s %d/%d/%d %d %s %lf %s %f %d/%d/%d",add.acc_no,add.name,&add.dob.month,&add.dob.day,&add.dob.year,&add.age,add.address,&add.phone,add.acc_type,&add.amt,&add.deposit.month,&add.deposit.day,&add.deposit.year)!=EOF)
-       {
-           printf("\n%s\t %10s\t\t\t%10s\t\t%.0lf",add.acc_no,add.name,add.address,add.phone);
-           test++;
-       }
-
-    fclose(view);
-    if (test==0)
-        {   system("cls");
-            printf("\nNO RECORDS!!\n");}
-
-    view_list_invalid:
-     printf("\n\nEnter 1 to go to the main menu and 0 to exit:");
-        scanf("%d",&main_exit);
+{   
+    printf("Enter Admin password: ");
+    char pass[100];
+    scanf("%s",pass);
+    if(strcmp(pass,"admin123\n")){
+        FILE *view;
+        view=fopen("record.dat","r");
+        int test=0;
         system("cls");
-        if (main_exit==1)
-            menu();
-        else if(main_exit==0)
-            exit(0);
-        else
+        printf("\nACC. NO.\tNAME\t\t\tADDRESS\t\t\tPHONE\n");
+
+        while(fscanf(view,"%s %s %d/%d/%d %d %s %lf %s %f %d/%d/%d",add.acc_no,add.name,&add.dob.month,&add.dob.day,&add.dob.year,&add.age,add.address,&add.phone,add.acc_type,&add.amt,&add.deposit.month,&add.deposit.day,&add.deposit.year)!=EOF)
         {
-            printf("\nInvalid!\a");
-            goto view_list_invalid;
+            printf("\n%s\t %10s\t\t\t%10s\t\t%.0lf",add.acc_no,add.name,add.address,add.phone);
+            test++;
         }
+
+        fclose(view);
+        if (test==0)
+            {   system("cls");
+                printf("\nNO RECORDS!!\n");}
+
+        view_list_invalid:
+        printf("\n\nEnter 1 to go to the main menu and 0 to exit:");
+            scanf("%d",&main_exit);
+            system("cls");
+            if (main_exit==1)
+                menu();
+            else if(main_exit==0)
+                exit(0);
+            else
+            {
+                printf("\nInvalid!\a");
+                goto view_list_invalid;
+            }
+    }
+    else{
+        printf("Incorrect password\n");
+
+        printf("\n\nEnter 1 to go to the main menu and 0 to exit:");
+            scanf("%d",&main_exit);
+            system("cls");
+            if (main_exit==1)
+                menu();
+            else if(main_exit==0)
+                exit(0);
+            else
+            {
+                printf("\nInvalid!\a");
+                goto view_list_invalid;
+            }
+    }
 }
 void edit(void)
 {
