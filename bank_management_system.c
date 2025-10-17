@@ -1,10 +1,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<windows.h>
+#include<string.h>
+#include<time.h>
+
 int i,j;
 int main_exit;
 void menu();
 void transfer();
+void gen_rec(int acc_id, char* type, float amount, float new_balance, int rec_acc_id);
 struct date{
     int month,day,year;
 
@@ -37,7 +41,41 @@ void fordelay(int j)
          k=i;
 }
 
+
 int lastNum = 0;
+=======
+void gen_rec(int acc_id, char* type, float amount, float new_balance, int rec_acc_id)
+{
+    FILE *rec_ptr;
+    char filename[20];
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    long long trans_id = (long long)t;
+    sprintf(filename, "%d.txt", acc_id);
+    rec_ptr = fopen(filename, "a");
+
+    if (rec_ptr == NULL) {
+        printf("\nCould not open receipt file %s\n", filename);
+        return;
+    }
+
+    fprintf(rec_ptr, "\n Digital Bank Receipt");
+    fprintf(rec_ptr, "\ntransaction id: %lld", trans_id);
+    fprintf(rec_ptr, "\ndate & time: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(rec_ptr, "\nbank & branch: bank");
+    fprintf(rec_ptr, "\ntransaction type: %s", type);
+    fprintf(rec_ptr, "\namount: $%f", amount);
+
+    if (rec_acc_id != 0) {
+        fprintf(rec_ptr, "\nsender account: %s", acc_id);
+        fprintf(rec_ptr, "\nreceiver account: %d", rec_acc_id);
+    } else {
+        fprintf(rec_ptr, "\naccount no.:   %s", acc_id);
+    }
+    fprintf(rec_ptr, "\nupdated balance:  $%.2f", new_balance);
+    fclose(rec_ptr);
+}
+
 void new_acc()
 
 {
@@ -76,6 +114,8 @@ void new_acc()
     }
     strcpy(add.acc_no, check.acc_no);
         printf("\nEnter the name:");
+    strcpy(add.acc_no,check.acc_no);
+    printf("\nEnter the name:");
     scanf("%s",add.name);
     printf("\nEnter the date of birth(mm/dd/yyyy):");
     scanf("%d/%d/%d",&add.dob.month,&add.dob.day,&add.dob.year);
@@ -244,14 +284,31 @@ void transact(void)
                     add.amt+=transaction.amt;
                     fprintf(newrec,"%s %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",add.acc_no,add.name,add.dob.month,add.dob.day,add.dob.year,add.age,add.address,add.citizenship,add.phone,add.acc_type,add.amt,add.deposit.month,add.deposit.day,add.deposit.year);
                     printf("\n\nDeposited successfully!");
+                    fprintf(newrec,"%s %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",add.acc_no,add.name,add.dob.month,add.dob.day,add.dob.year,add.age,add.address,add.citizenship,add.phone,add.acc_type,add.amt,add.deposit.month,add.deposit.day,add.deposit.year);
+                    
+                    gen_rec(add.acc_no, "DEPOSIT", transaction.amt, add.amt, 0); 
+                    
+                    printf("\n\nDeposited successfully! Receipt saved as %d.txt", add.acc_no);
                 }
                 else
                 {
                     printf("Enter the amount you want to withdraw:$ ");
                     scanf("%f",&transaction.amt);
+                    if (add.amt < transaction.amt) {
+                        printf("\n\nInsufficient balance for withdrawal!");
+                        fprintf(newrec,"%d %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",add.acc_no,add.name,add.dob.month,add.dob.day,add.dob.year,add.age,add.address,add.citizenship,add.phone,add.acc_type,add.amt,add.deposit.month,add.deposit.day,add.deposit.year);
+                        continue;
+                    }
                     add.amt-=transaction.amt;
+<
                     fprintf(newrec,"%s %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",add.acc_no,add.name,add.dob.month,add.dob.day,add.dob.year,add.age,add.address,add.citizenship,add.phone,add.acc_type,add.amt,add.deposit.month,add.deposit.day,add.deposit.year);
                     printf("\n\nWithdrawn successfully!");
+=======
+                    fprintf(newrec,"%s %s %d/%d/%d %d %s %s %lf %s %f %d/%d/%d\n",add.acc_no,add.name,add.dob.month,add.dob.day,add.dob.year,add.age,add.address,add.citizenship,add.phone,add.acc_type,add.amt,add.deposit.month,add.deposit.day,add.deposit.year);
+                    
+                    gen_rec(add.acc_no, "WITHDRAWAL", transaction.amt, add.amt, 0);
+                    
+                    printf("\n\nWithdrawn successfully! Receipt saved as %d.txt", add.acc_no);
                 }
 
             }
@@ -544,6 +601,7 @@ void transfer() {
     char dest_acc_no[10];
     float transfer_amt;
     FILE *old, *newrec;
+    float src_new_balance = 0.0, dest_new_balance = 0.0;
 
     old = fopen("record.dat", "r");
     newrec = fopen("new.dat", "w");
@@ -565,11 +623,12 @@ void transfer() {
         if(strcmp(add.acc_no,src_acc_no)==0){
             test_src = 1;
             if(add.amt < transfer_amt){
-                printf("\nInsufficient funds in the source account!\n");
+                printf("\nInsufficient funds in the source account!");
                 test_src = -1;
             }
             else{
                 add.amt -= transfer_amt;
+                src_new_balance = add.amt;
             }
         }
 
@@ -577,6 +636,7 @@ void transfer() {
             test_dest = 1;
             if(test_src != -1){
                 add.amt += transfer_amt;
+                dest_new_balance = add.amt;
             }
         }
 
@@ -594,13 +654,16 @@ void transfer() {
         remove("new.dat");
     }
     else if(test_src == 0 || test_dest == 0){
-        printf("\nInvalid account number(s)!\n");
+        printf("\nTransfer Failed! Invalid account number(s)!\n");
         remove("new.dat");
     }
     else{
-        printf("\nTransfer completed successfully!\n");
+        printf("\nTransfer completed successfully! Receipts saved as %d.txt and %d.txt\n", src_acc_no, dest_acc_no);
         remove("record.dat");
         rename("new.dat", "record.dat");
+
+        gen_rec(src_acc_no, "TRANSFER (SENT)", transfer_amt, src_new_balance, dest_acc_no);
+        gen_rec(dest_acc_no, "TRANSFER (RECEIVED)", transfer_amt, dest_new_balance, src_acc_no);
     }
 
     printf("\nEnter 1 to go to the main menu and 0 to exit: ");
@@ -657,7 +720,7 @@ int main()
     scanf("%s",pass);
     /*do
     {
-    //if (pass[i]!=13&&pass[i]!=8)
+    if (pass[i]!=13&&pass[i]!=8)
         {
             printf("*");
             pass[i]=getch();
