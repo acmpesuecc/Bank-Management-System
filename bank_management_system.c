@@ -56,11 +56,11 @@ void gen_rec(int acc_id, char* type, float amount, float new_balance, int rec_ac
     }
 
     fprintf(rec_ptr, "\n Digital Bank Receipt");
-    fprintf(rec_ptr, "\ntransaction id:   %lld", trans_id);
-    fprintf(rec_ptr, "\ndate & time:      %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-    fprintf(rec_ptr, "\nbank & Branch:    CODEWITHC Bank (Placeholder)");
+    fprintf(rec_ptr, "\ntransaction id: %lld", trans_id);
+    fprintf(rec_ptr, "\ndate & time: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(rec_ptr, "\nbank & Branch: Bank");
     fprintf(rec_ptr, "\ntransaction Type: %s", type);
-    fprintf(rec_ptr, "\namount:         $%f", amount);
+    fprintf(rec_ptr, "\namount: $%f", amount);
 
     if (rec_acc_id != 0) {
         fprintf(rec_ptr, "\nSender Account: %d", acc_id);
