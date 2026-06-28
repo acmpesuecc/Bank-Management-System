@@ -1,8 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #include<windows.h>
+#include "password_auth.h"
 int i,j;
 int main_exit;
+char session_acc[10];
 void menu();
 void transfer();
 struct date{
@@ -87,6 +90,22 @@ void new_acc()
     scanf("%f",&add.amt);
     printf("\nType of account:\n\t#Saving\n\t#Current\n\t#Fixed1(for 1 year)\n\t#Fixed2(for 2 years)\n\t#Fixed3(for 3 years)\n\n\tEnter your choice:");
     scanf("%s",add.acc_type);
+
+    {
+        char password[64];
+        printf("\nEnter account password (min 4 chars):");
+        scanf("%63s", password);
+        if (strlen(password) < 4) {
+            printf("\nPassword too short. Account not created.");
+            fclose(ptr);
+            goto add_invalid;
+        }
+        if (!auth_register_credential(add.acc_no, password)) {
+            printf("\nFailed to store credentials.");
+            fclose(ptr);
+            goto add_invalid;
+        }
+    }
 
         fprintf(ptr,"%s %s %d/%d/%d %d %s %lf %s %f %d/%d/%d\n",add.acc_no,add.name,add.dob.month,add.dob.day,add.dob.year,add.age,add.address,add.phone,add.acc_type,add.amt,add.deposit.month,add.deposit.day,add.deposit.year);
 
@@ -502,7 +521,7 @@ void see(void)
 // In the menu() function, update the switch case to remove the edit option
 // Add this function before main()
 int is_admin() {
-    char pass[20], password[20] = "admin123"; // Default admin password
+    char pass[64];
     char user_type;
     int i = 0;
     
@@ -511,24 +530,41 @@ int is_admin() {
     
     if (user_type == 'A' || user_type == 'a') {
         printf("\n\t\tEnter admin password: ");
-        scanf("%s", pass);
+        scanf("%63s", pass);
         
-        if (strcmp(pass, password) == 0) {
+        if (auth_verify_credential("__admin__", pass)) {
             printf("\n\n\t\tAdmin access granted!\n");
             for(i=0; i<=3; i++) {
                 fordelay(100000000);
                 printf(".");
             }
             system("cls");
-            return 1; // Return 1 for admin
+            return 1;
         } else {
             printf("\n\n\t\tIncorrect password! Logging in as regular user...\n");
             fordelay(1000000000);
             system("cls");
-            return 0; // Return 0 for regular user
+            return 0;
         }
     }
-    return 0; // Regular user by default
+    return 0;
+}
+
+int user_login() {
+    char pass[64];
+    printf("\n\t\tEnter your account number: ");
+    scanf("%9s", session_acc);
+    printf("\n\t\tEnter your password: ");
+    scanf("%63s", pass);
+    if (auth_verify_credential(session_acc, pass)) {
+        printf("\n\n\t\tLogin successful!\n");
+        fordelay(500000000);
+        system("cls");
+        return 1;
+    }
+    printf("\n\n\t\tInvalid credentials!\n");
+    fordelay(1000000000);
+    return 0;
 }
 
 void transfer() {
@@ -609,8 +645,12 @@ void transfer() {
 void menu() {
     int choice, is_admin_user = 0;
     
-    // Check if user is admin
     is_admin_user = is_admin();
+    if (!is_admin_user) {
+        if (!user_login()) {
+            exit(0);
+        }
+    }
     
     system("cls");
     system("color 9");
@@ -680,8 +720,14 @@ void menu() {
             break;
         case 7:
             if (is_admin_user) {
-                // Change admin password function can be added here
-                printf("\n\t\tChange admin password feature coming soon!");
+                char new_pass[64];
+                printf("\n\t\tEnter new admin password: ");
+                scanf("%63s", new_pass);
+                if (strlen(new_pass) >= 4 && auth_change_password("__admin__", new_pass)) {
+                    printf("\n\t\tAdmin password updated (stored as SHA-256 hash in users.csv).");
+                } else {
+                    printf("\n\t\tPassword change failed (min 4 characters).");
+                }
                 fordelay(1000000000);
                 menu();
             }
@@ -702,6 +748,7 @@ void menu() {
 int main() {
     system("cls");
     system("color 9");
+    auth_ensure_default_admin();
     printf("\n\n\t\t\tCUSTOMER ACCOUNT BANKING MANAGEMENT SYSTEM");
     printf("\n\n\n\t\t\t\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WELCOME \xB2\xB2\xB2\xB2\xB2\xB2\xB2");
     
